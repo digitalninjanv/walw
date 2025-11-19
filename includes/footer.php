@@ -7,8 +7,16 @@
     </div>
 <?php endif; // Akhir dari if (is_logged_in()) untuk penutup div layout utama ?>
 
-<footer class="text-center py-6 <?php echo is_logged_in() ? 'md:pl-72' : ''; ?> bg-slate-900 text-slate-300 text-sm print:hidden border-t border-slate-800">
-    <p>&copy; <?php echo date('Y'); ?> Bank Sampah Digital. Dibuat dengan <i class="fas fa-heart text-red-500"></i>.</p>
+<footer class="<?php echo is_logged_in() ? 'md:pl-72' : ''; ?> bg-slate-900 text-slate-400 text-sm print:hidden border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-2 text-center md:flex-row md:items-center md:justify-between">
+        <p>&copy; <?php echo date('Y'); ?> Bank Sampah Digital.</p>
+        <p>
+            Powered by
+            <a href="https://github.com/digitalninjanv" target="_blank" rel="noopener" class="text-emerald-300 hover:text-emerald-200 font-semibold">
+                digitalninjanv
+            </a>
+        </p>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
