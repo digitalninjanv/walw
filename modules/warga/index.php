@@ -7,6 +7,9 @@ $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
 $query_condition = "";
 $params_type = "";
 $params_value = [];
+$per_page = 10;
+$current_page = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
+$offset = ($current_page - 1) * $per_page;
 
 // Hanya mencari warga
 $base_condition = "level = 'warga'";
@@ -22,10 +25,33 @@ if (!empty($search)) {
 }
 
 // Kolom yang dipilih disesuaikan, username tetap dipilih untuk logika internal jika diperlukan, tapi tidak ditampilkan
+$count_query = "SELECT COUNT(*) AS total
+                FROM pengguna
+                WHERE $base_condition $query_condition";
+
+$total_warga = 0;
+$count_stmt = mysqli_prepare($koneksi, $count_query);
+if ($count_stmt) {
+    if (!empty($search)) {
+        mysqli_stmt_bind_param($count_stmt, $params_type, ...$params_value);
+    }
+    mysqli_stmt_execute($count_stmt);
+    mysqli_stmt_bind_result($count_stmt, $total_warga);
+    mysqli_stmt_fetch($count_stmt);
+    mysqli_stmt_close($count_stmt);
+}
+
+$total_pages = max(1, (int)ceil($total_warga / $per_page));
+if ($current_page > $total_pages) {
+    $current_page = $total_pages;
+}
+$offset = ($current_page - 1) * $per_page;
+
 $query_string = "SELECT id_pengguna, nama_lengkap, username, alamat, no_telepon, saldo, tanggal_daftar
                  FROM pengguna
                  WHERE $base_condition $query_condition
-                 ORDER BY nama_lengkap ASC";
+                 ORDER BY nama_lengkap ASC
+                 LIMIT $per_page OFFSET $offset";
 
 $stmt = mysqli_prepare($koneksi, $query_string);
 
@@ -65,6 +91,7 @@ if ($stmt) {
 
     <form method="GET" action="<?php echo BASE_URL; ?>index.php" class="mb-6">
         <input type="hidden" name="page" value="warga/data">
+        <input type="hidden" name="p" value="1">
         <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <i class="fas fa-search text-sky-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
@@ -94,7 +121,7 @@ if ($stmt) {
                         <?php if (!empty($data_warga)): ?>
                             <?php foreach($data_warga as $index => $row): ?>
                             <tr class="hover:bg-sky-50/50 transition-colors duration-150">
-                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $index + 1; ?></td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $offset + $index + 1; ?></td>
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold flex items-center gap-2">
                                     <span class="w-9 h-9 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs">
                                         <?php echo strtoupper(substr($row['nama_lengkap'], 0, 2)); ?>
@@ -158,7 +185,7 @@ if ($stmt) {
                                     <p class="text-xs text-gray-500">ID: <?php echo htmlspecialchars($row['id_pengguna']); ?></p>
                                 </div>
                             </div>
-                            <span class="text-xs px-3 py-1 bg-sky-50 text-sky-600 rounded-full font-semibold">#<?php echo $index + 1; ?></span>
+                            <span class="text-xs px-3 py-1 bg-sky-50 text-sky-600 rounded-full font-semibold">#<?php echo $offset + $index + 1; ?></span>
                         </div>
 
                         <div class="mt-3 space-y-3 text-sm text-gray-600">
@@ -198,6 +225,47 @@ if ($stmt) {
                     <a href="<?php echo BASE_URL; ?>index.php?page=warga/tambah" class="mt-3 inline-flex items-center gap-2 text-sky-600 font-semibold">Tambah sekarang <i class="fas fa-arrow-right"></i></a>
                 </div>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <?php
+        $start_item = ($total_warga > 0) ? $offset + 1 : 0;
+        $end_item = ($total_warga > 0) ? min($total_warga, $offset + count($data_warga)) : 0;
+        $base_params = ['page' => 'warga/data'];
+        if (!empty($search)) {
+            $base_params['search'] = $search;
+        }
+    ?>
+
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+        <p class="text-sm text-gray-600">
+            <?php if ($total_warga > 0): ?>
+                Menampilkan <span class="font-semibold"><?php echo $start_item; ?>-<?php echo $end_item; ?></span> dari <span class="font-semibold"><?php echo $total_warga; ?></span> warga terdaftar.
+            <?php else: ?>
+                Belum ada data warga untuk ditampilkan.
+            <?php endif; ?>
+        </p>
+        <div class="flex items-center gap-2">
+            <?php $prev_disabled = ($current_page <= 1); ?>
+            <?php $next_disabled = ($current_page >= $total_pages || $total_warga === 0); ?>
+            <?php if (!$prev_disabled) {
+                $prev_params = $base_params;
+                $prev_params['p'] = $current_page - 1;
+            }
+            if (!$next_disabled) {
+                $next_params = $base_params;
+                $next_params['p'] = $current_page + 1;
+            }
+            ?>
+            <a href="<?php echo !$prev_disabled ? BASE_URL . 'index.php?' . http_build_query($prev_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $prev_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-sky-600 border-sky-200 bg-sky-50 hover:bg-sky-100'; ?>">
+                <i class="fas fa-arrow-left"></i> Sebelumnya
+            </a>
+            <span class="text-sm text-gray-500">Halaman <?php echo $current_page; ?> dari <?php echo max($total_pages, 1); ?></span>
+            <a href="<?php echo !$next_disabled ? BASE_URL . 'index.php?' . http_build_query($next_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $next_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-sky-600 border-sky-200 bg-sky-50 hover:bg-sky-100'; ?>">
+                Berikutnya <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 </div>

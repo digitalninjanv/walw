@@ -6,6 +6,8 @@ $filter_warga = isset($_GET['filter_warga']) ? sanitize_input($_GET['filter_warg
 $filter_tipe = isset($_GET['filter_tipe']) ? sanitize_input($_GET['filter_tipe']) : '';
 $filter_tanggal_mulai = isset($_GET['filter_tanggal_mulai']) ? sanitize_input($_GET['filter_tanggal_mulai']) : '';
 $filter_tanggal_akhir = isset($_GET['filter_tanggal_akhir']) ? sanitize_input($_GET['filter_tanggal_akhir']) : '';
+$per_page = 10;
+$current_page = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
 
 $conditions = [];
 $params_type = "";
@@ -37,6 +39,32 @@ if (!empty($conditions)) {
     $where_clause = "WHERE " . implode(" AND ", $conditions);
 }
 
+$count_query = "
+    SELECT COUNT(*) AS total
+    FROM transaksi t
+    JOIN pengguna warga ON t.id_warga = warga.id_pengguna
+    JOIN pengguna petugas ON t.id_petugas_pencatat = petugas.id_pengguna
+    $where_clause
+";
+
+$total_transaksi = 0;
+$count_stmt = mysqli_prepare($koneksi, $count_query);
+if ($count_stmt) {
+    if (!empty($params_type) && !empty($params_value)) {
+        mysqli_stmt_bind_param($count_stmt, $params_type, ...$params_value);
+    }
+    mysqli_stmt_execute($count_stmt);
+    mysqli_stmt_bind_result($count_stmt, $total_transaksi);
+    mysqli_stmt_fetch($count_stmt);
+    mysqli_stmt_close($count_stmt);
+}
+
+$total_pages = max(1, (int)ceil($total_transaksi / $per_page));
+if ($current_page > $total_pages) {
+    $current_page = $total_pages;
+}
+$offset = ($current_page - 1) * $per_page;
+
 $query_transaksi = "
     SELECT
         t.id_transaksi,
@@ -52,6 +80,7 @@ $query_transaksi = "
     JOIN pengguna petugas ON t.id_petugas_pencatat = petugas.id_pengguna
     $where_clause
     ORDER BY t.tanggal_transaksi DESC
+    LIMIT $per_page OFFSET $offset
 ";
 
 $stmt_transaksi = mysqli_prepare($koneksi, $query_transaksi);
@@ -115,13 +144,14 @@ $result_all_warga = mysqli_query($koneksi, $query_all_warga);
                 <p class="text-sm text-gray-600 mt-1">Lihat seluruh setoran dan penarikan dengan tampilan yang rapi di layar mobile maupun desktop.</p>
             </div>
             <div class="flex gap-2 flex-wrap">
-                <span class="inline-flex items-center gap-2 text-xs bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600"><i class="fas fa-database text-sky-500"></i><?php echo count($riwayat_transaksi); ?> data</span>
+                <span class="inline-flex items-center gap-2 text-xs bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600"><i class="fas fa-database text-sky-500"></i><?php echo $total_transaksi; ?> data</span>
             </div>
         </div>
     </div>
 
     <form method="GET" action="<?php echo BASE_URL; ?>index.php" class="mb-8 bg-white border border-gray-100 rounded-2xl shadow-lg p-4 sm:p-6">
         <input type="hidden" name="page" value="transaksi/riwayat">
+        <input type="hidden" name="p" value="1">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             <div>
                 <label for="filter_warga" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Warga</label>
@@ -288,4 +318,48 @@ $result_all_warga = mysqli_query($koneksi, $query_all_warga);
         </div>
     </div>
 </div>
+
+<?php
+    $start_item = ($total_transaksi > 0) ? $offset + 1 : 0;
+    $end_item = ($total_transaksi > 0) ? min($total_transaksi, $offset + count($riwayat_transaksi)) : 0;
+    $base_params = ['page' => 'transaksi/riwayat'];
+    if (!empty($filter_warga)) { $base_params['filter_warga'] = $filter_warga; }
+    if (!empty($filter_tipe)) { $base_params['filter_tipe'] = $filter_tipe; }
+    if (!empty($filter_tanggal_mulai)) { $base_params['filter_tanggal_mulai'] = $filter_tanggal_mulai; }
+    if (!empty($filter_tanggal_akhir)) { $base_params['filter_tanggal_akhir'] = $filter_tanggal_akhir; }
+    $prev_disabled = ($current_page <= 1);
+    $next_disabled = ($current_page >= $total_pages || $total_transaksi === 0);
+    if (!$prev_disabled) {
+        $prev_params = $base_params;
+        $prev_params['p'] = $current_page - 1;
+    }
+    if (!$next_disabled) {
+        $next_params = $base_params;
+        $next_params['p'] = $current_page + 1;
+    }
+?>
+
+<div class="container mx-auto px-4 mt-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+        <p class="text-sm text-gray-600">
+            <?php if ($total_transaksi > 0): ?>
+                Menampilkan <span class="font-semibold"><?php echo $start_item; ?>-<?php echo $end_item; ?></span> dari <span class="font-semibold"><?php echo $total_transaksi; ?></span> riwayat transaksi.
+            <?php else: ?>
+                Tidak ada riwayat transaksi untuk ditampilkan.
+            <?php endif; ?>
+        </p>
+        <div class="flex items-center gap-2">
+            <a href="<?php echo !$prev_disabled ? BASE_URL . 'index.php?' . http_build_query($prev_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $prev_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-sky-600 border-sky-200 bg-sky-50 hover:bg-sky-100'; ?>">
+                <i class="fas fa-arrow-left"></i> Sebelumnya
+            </a>
+            <span class="text-sm text-gray-500">Halaman <?php echo $current_page; ?> dari <?php echo max($total_pages, 1); ?></span>
+            <a href="<?php echo !$next_disabled ? BASE_URL . 'index.php?' . http_build_query($next_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $next_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-sky-600 border-sky-200 bg-sky-50 hover:bg-sky-100'; ?>">
+                Berikutnya <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
 <?php if ($stmt_transaksi) { mysqli_stmt_close($stmt_transaksi); } ?>

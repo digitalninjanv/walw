@@ -8,7 +8,24 @@ if (!empty($search)) {
     $query_condition = " WHERE nama_sampah LIKE '%$search%' OR deskripsi LIKE '%$search%'";
 }
 
-$query = "SELECT id_jenis_sampah, nama_sampah, harga_per_kg, deskripsi, satuan FROM jenis_sampah $query_condition ORDER BY nama_sampah ASC";
+$per_page = 10;
+$current_page = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
+
+$count_query = "SELECT COUNT(*) AS total FROM jenis_sampah $query_condition";
+$count_result = mysqli_query($koneksi, $count_query);
+$total_jenis = 0;
+if ($count_result) {
+    $row_count = mysqli_fetch_assoc($count_result);
+    $total_jenis = (int)$row_count['total'];
+}
+
+$total_pages = max(1, (int)ceil($total_jenis / $per_page));
+if ($current_page > $total_pages) {
+    $current_page = $total_pages;
+}
+$offset = ($current_page - 1) * $per_page;
+
+$query = "SELECT id_jenis_sampah, nama_sampah, harga_per_kg, deskripsi, satuan FROM jenis_sampah $query_condition ORDER BY nama_sampah ASC LIMIT $per_page OFFSET $offset";
 $result = mysqli_query($koneksi, $query);
 $jenis_sampah = [];
 
@@ -33,6 +50,7 @@ if ($result) {
 
     <form method="GET" action="<?php echo BASE_URL; ?>index.php" class="mb-6">
         <input type="hidden" name="page" value="jenis_sampah/data">
+        <input type="hidden" name="p" value="1">
         <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <i class="fas fa-search text-emerald-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
@@ -61,7 +79,7 @@ if ($result) {
                         <?php if (!empty($jenis_sampah)): ?>
                             <?php foreach($jenis_sampah as $index => $row): ?>
                             <tr class="hover:bg-emerald-50/50 transition-colors duration-150">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">#<?php echo $index + 1; ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">#<?php echo $offset + $index + 1; ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold flex items-center gap-3">
                                     <span class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
                                         <?php echo strtoupper(substr($row['nama_sampah'], 0, 2)); ?>
@@ -119,7 +137,7 @@ if ($result) {
                                     <p class="text-xs text-gray-500">ID: <?php echo htmlspecialchars($row['id_jenis_sampah']); ?></p>
                                 </div>
                             </div>
-                            <span class="text-xs px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold">#<?php echo $index + 1; ?></span>
+                            <span class="text-xs px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold">#<?php echo $offset + $index + 1; ?></span>
                         </div>
 
                         <div class="mt-3 text-sm text-gray-700 font-semibold flex items-center gap-2">
@@ -147,6 +165,46 @@ if ($result) {
                     <a href="<?php echo BASE_URL; ?>index.php?page=jenis_sampah/tambah" class="mt-3 inline-flex items-center gap-2 text-emerald-600 font-semibold">Tambah sekarang <i class="fas fa-arrow-right"></i></a>
                 </div>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <?php
+        $start_item = ($total_jenis > 0) ? $offset + 1 : 0;
+        $end_item = ($total_jenis > 0) ? min($total_jenis, $offset + count($jenis_sampah)) : 0;
+        $base_params = ['page' => 'jenis_sampah/data'];
+        if (!empty($search)) {
+            $base_params['search'] = $search;
+        }
+        $prev_disabled = ($current_page <= 1);
+        $next_disabled = ($current_page >= $total_pages || $total_jenis === 0);
+        if (!$prev_disabled) {
+            $prev_params = $base_params;
+            $prev_params['p'] = $current_page - 1;
+        }
+        if (!$next_disabled) {
+            $next_params = $base_params;
+            $next_params['p'] = $current_page + 1;
+        }
+    ?>
+
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+        <p class="text-sm text-gray-600">
+            <?php if ($total_jenis > 0): ?>
+                Menampilkan <span class="font-semibold"><?php echo $start_item; ?>-<?php echo $end_item; ?></span> dari <span class="font-semibold"><?php echo $total_jenis; ?></span> jenis sampah.
+            <?php else: ?>
+                Belum ada data jenis sampah untuk ditampilkan.
+            <?php endif; ?>
+        </p>
+        <div class="flex items-center gap-2">
+            <a href="<?php echo !$prev_disabled ? BASE_URL . 'index.php?' . http_build_query($prev_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $prev_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
+                <i class="fas fa-arrow-left"></i> Sebelumnya
+            </a>
+            <span class="text-sm text-gray-500">Halaman <?php echo $current_page; ?> dari <?php echo max($total_pages, 1); ?></span>
+            <a href="<?php echo !$next_disabled ? BASE_URL . 'index.php?' . http_build_query($next_params) : 'javascript:void(0);'; ?>"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $next_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
+                Berikutnya <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 </div>
