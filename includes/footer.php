@@ -8,44 +8,17 @@
 <?php endif; // Akhir dari if (is_logged_in()) untuk penutup div layout utama ?>
 
 <footer class="<?php echo is_logged_in() ? 'md:pl-72' : ''; ?> bg-slate-900 text-slate-300 text-sm print:hidden border-t border-slate-800">
-    <div class="max-w-6xl mx-auto px-6 py-10 space-y-6">
-        <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-            <div class="space-y-2">
-                <p class="text-base font-semibold text-white tracking-wide">Bank Sampah Digital</p>
-                <p class="text-slate-400 max-w-xl">
-                    Solusi dashboard profesional untuk pengelolaan data bank sampah, monitoring transaksi, dan pelaporan
-                    yang transparan bagi pengelola maupun mitra.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                <div>
-                    <p class="text-slate-400 text-xs uppercase tracking-widest mb-2">Navigasi Cepat</p>
-                    <ul class="space-y-1 text-slate-200">
-                        <li><a class="hover:text-emerald-300 transition" href="index.php">Beranda</a></li>
-                        <li><a class="hover:text-emerald-300 transition" href="modules/profil/">Profil</a></li>
-                        <li><a class="hover:text-emerald-300 transition" href="#">Laporan</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="text-slate-400 text-xs uppercase tracking-widest mb-2">Hubungi</p>
-                    <ul class="space-y-1 text-slate-200">
-                        <li>Email: <a class="hover:text-emerald-300 transition" href="mailto:halo@banksampah.digital">halo@banksampah.digital</a></li>
-                        <li>Telepon: <span class="text-slate-400">(+62) 812-0000-0000</span></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="text-left md:text-right space-y-2">
-                <p class="text-slate-500 text-[0.65rem] uppercase tracking-[0.4em]">Powered by</p>
-                <a href="https://github.com/digitalninjanv" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base font-semibold text-emerald-300 hover:text-emerald-200 transition">
-                    <i class="fab fa-github text-lg"></i>
-                    <span>digitalninjanv</span>
-                    <span aria-hidden="true" class="text-slate-500">&rarr;</span>
+    <div class="max-w-4xl mx-auto px-6 py-8">
+        <div class="flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:gap-3 sm:text-left sm:justify-center">
+            <p class="text-slate-400 tracking-wide">&copy; 2025 Bank Sampah Digital</p>
+            <span class="hidden text-slate-700 sm:inline">|</span>
+            <p class="text-slate-300">
+                Powered by
+                <a href="https://github.com/digitalninjanv" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-semibold text-emerald-300 hover:text-emerald-200 transition">
+                    <i class="fab fa-github text-base"></i>
+                    <span>github.com/digitalninjanv</span>
                 </a>
-            </div>
-        </div>
-        <div class="border-t border-slate-800/50 pt-4 flex flex-col gap-2 text-center md:flex-row md:items-center md:justify-between">
-            <p class="text-slate-500">&copy; <?php echo date('Y'); ?> Bank Sampah Digital. Seluruh hak cipta dilindungi.</p>
-            <p class="text-slate-500">Dibuat dengan <i class="fas fa-heart text-red-500"></i> untuk lingkungan yang lebih bersih.</p>
+            </p>
         </div>
     </div>
 </footer>
