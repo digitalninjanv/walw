@@ -39,7 +39,8 @@ $allowed_pages = [
     'transaksi/proses_setor' => 'modules/transaksi/proses_setor.php',
     'transaksi/tarik_saldo' => 'modules/transaksi/tarik_saldo.php',
     'transaksi/proses_tarik' => 'modules/transaksi/proses_tarik.php',
-    'transaksi/riwayat' => 'modules/transaksi/riwayat.php', 
+    'transaksi/riwayat' => 'modules/transaksi/riwayat.php',
+    'transaksi/struk' => 'modules/transaksi/struk.php',
 
     // Laporan
     'laporan/harian' => 'modules/laporan/harian.php',

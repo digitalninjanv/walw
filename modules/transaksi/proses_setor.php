@@ -114,6 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id_warga']) && isset($
 
         mysqli_commit($koneksi);
         $_SESSION['success_message'] = "Setoran sampah berhasil dicatat dengan total nilai " . format_rupiah($total_nilai_keseluruhan) . ".";
+        $_SESSION['last_transaksi_id'] = $id_transaksi_setor;
+        $_SESSION['last_transaksi_tipe'] = 'setor';
         redirect(BASE_URL . 'index.php?page=transaksi/setor');
 
     } catch (Exception $e) {

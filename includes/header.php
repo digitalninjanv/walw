@@ -152,17 +152,48 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
             </header>
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
+                <?php
+                    $has_printable_transaksi = isset($_SESSION['last_transaksi_id']);
+                    $last_transaksi_label = '';
+                    if ($has_printable_transaksi) {
+                        $tipe = $_SESSION['last_transaksi_tipe'] ?? '';
+                        if ($tipe === 'setor') {
+                            $last_transaksi_label = 'Setoran Sampah';
+                        } elseif ($tipe === 'tarik_saldo') {
+                            $last_transaksi_label = 'Penarikan Saldo';
+                        } elseif (!empty($tipe)) {
+                            $last_transaksi_label = ucfirst(str_replace('_', ' ', $tipe));
+                        }
+                    }
+                ?>
                 <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg shadow" role="alert">
-                        <div class="flex">
-                            <div class="py-1"><i class="fas fa-check-circle fa-lg mr-3 text-green-500"></i></div>
-                            <div>
-                                <p class="font-bold">Sukses!</p>
-                                <p class="text-sm"><?php echo $_SESSION['success_message']; ?></p>
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex">
+                                <div class="py-1"><i class="fas fa-check-circle fa-lg mr-3 text-green-500"></i></div>
+                                <div>
+                                    <p class="font-bold">Sukses!</p>
+                                    <p class="text-sm"><?php echo $_SESSION['success_message']; ?></p>
+                                </div>
                             </div>
+                            <?php if ($has_printable_transaksi): ?>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <a href="<?php echo BASE_URL . 'index.php?page=transaksi/struk&id=' . urlencode($_SESSION['last_transaksi_id']); ?>"
+                                       target="_blank" rel="noopener"
+                                       class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-green-700 font-semibold text-sm border border-green-300 shadow-sm hover:bg-green-50">
+                                        <i class="fas fa-print"></i>
+                                        Cetak Struk<?php echo $last_transaksi_label ? ' ' . htmlspecialchars($last_transaksi_label) : ''; ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <?php unset($_SESSION['success_message']); ?>
+                    <?php
+                        unset($_SESSION['success_message']);
+                        if ($has_printable_transaksi) {
+                            unset($_SESSION['last_transaksi_id'], $_SESSION['last_transaksi_tipe']);
+                        }
+                    ?>
                 <?php endif; ?>
 
                 <?php if (isset($_SESSION['error_message'])): ?>
