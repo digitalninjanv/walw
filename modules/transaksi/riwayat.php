@@ -209,6 +209,7 @@ $result_all_warga = mysqli_query($koneksi, $query_all_warga);
                             <th class="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Nilai (Rp)</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Dicatat Oleh</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Detail/Keterangan</th>
+                            <th class="px-4 sm:px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Struk</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -243,11 +244,18 @@ $result_all_warga = mysqli_query($koneksi, $query_all_warga);
                                         <?php echo htmlspecialchars($trx['keterangan_transaksi'] ? $trx['keterangan_transaksi'] : '-'); ?>
                                     <?php endif; ?>
                                 </td>
+                                <td class="px-4 sm:px-6 py-4 text-center">
+                                    <a href="<?php echo BASE_URL . 'index.php?page=transaksi/struk&id=' . urlencode($trx['id_transaksi']); ?>"
+                                       target="_blank" rel="noopener"
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border border-sky-200 text-sky-600 hover:bg-sky-50">
+                                        <i class="fas fa-receipt"></i> Cetak
+                                    </a>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-500">
                                     Tidak ada data transaksi ditemukan dengan filter yang diterapkan.
                                     <div class="mt-3">
                                         <a href="<?php echo BASE_URL; ?>index.php?page=transaksi/riwayat" class="text-sky-500 hover:underline font-semibold">Reset filter dan tampilkan semua</a>
@@ -304,6 +312,13 @@ $result_all_warga = mysqli_query($koneksi, $query_all_warga);
                                 <?php else: ?>
                                     <p class="text-xs text-gray-600"><?php echo htmlspecialchars($trx['keterangan_transaksi'] ? $trx['keterangan_transaksi'] : '-'); ?></p>
                                 <?php endif; ?>
+                            </div>
+                            <div class="pt-3 flex flex-wrap gap-2">
+                                <a href="<?php echo BASE_URL . 'index.php?page=transaksi/struk&id=' . urlencode($trx['id_transaksi']); ?>"
+                                   target="_blank" rel="noopener"
+                                   class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-sky-50 text-sky-600 border border-sky-100">
+                                    <i class="fas fa-print"></i> Cetak Struk
+                                </a>
                             </div>
                         </div>
                     </div>
