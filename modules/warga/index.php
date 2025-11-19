@@ -85,6 +85,7 @@ if ($stmt) {
                             <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No</th>
                             <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Lengkap</th>
                             <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No. Telepon</th>
+                            <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Saldo</th>
                             <th scope="col" class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Alamat</th>
                             <th scope="col" class="px-4 sm:px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                         </tr>
@@ -106,6 +107,9 @@ if ($stmt) {
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     <div class="flex items-center gap-2"><i class="fas fa-phone-alt text-sky-500"></i><span><?php echo htmlspecialchars($row['no_telepon']); ?></span></div>
                                 </td>
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600 text-right">
+                                    <?php echo format_rupiah($row['saldo']); ?>
+                                </td>
                                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="<?php echo htmlspecialchars($row['alamat']); ?>"><?php echo htmlspecialchars($row['alamat'] ? $row['alamat'] : '-'); ?></td>
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                     <a href="<?php echo BASE_URL; ?>index.php?page=warga/edit&id=<?php echo $row['id_pengguna']; ?>" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition">
@@ -121,7 +125,7 @@ if ($stmt) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">
+                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">
                                     <div class="flex flex-col items-center gap-2">
                                         <i class="fas fa-users-slash fa-3x text-gray-400"></i>
                                         <?php if(!empty($search)): ?>
@@ -157,7 +161,7 @@ if ($stmt) {
                             <span class="text-xs px-3 py-1 bg-sky-50 text-sky-600 rounded-full font-semibold">#<?php echo $index + 1; ?></span>
                         </div>
 
-                        <div class="mt-3 space-y-2 text-sm text-gray-600">
+                        <div class="mt-3 space-y-3 text-sm text-gray-600">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-phone text-sky-500"></i>
                                 <span><?php echo htmlspecialchars($row['no_telepon'] ?: '-'); ?></span>
@@ -165,6 +169,13 @@ if ($stmt) {
                             <div class="flex items-start gap-2">
                                 <i class="fas fa-map-marker-alt text-sky-500 mt-0.5"></i>
                                 <span class="leading-relaxed"><?php echo htmlspecialchars($row['alamat'] ?: '-'); ?></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-emerald-600 font-semibold bg-emerald-50 px-3 py-2 rounded-xl">
+                                <i class="fas fa-wallet"></i>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-wider text-emerald-500 font-bold">Saldo Saat Ini</p>
+                                    <p class="text-base text-emerald-600"><?php echo format_rupiah($row['saldo']); ?></p>
+                                </div>
                             </div>
                         </div>
 
