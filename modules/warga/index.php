@@ -52,6 +52,12 @@ if ($stmt) {
     $data_warga = [];
 }
 
+$warga_page_base = BASE_URL . 'index.php?page=warga/';
+$warga_data_page = $warga_page_base . 'data';
+$warga_tambah_page = $warga_page_base . 'tambah';
+$warga_edit_base = $warga_page_base . 'edit&id=';
+$warga_hapus_base = $warga_page_base . 'hapus&id=';
+
 ?>
 
 <div class="container mx-auto px-4 py-8">
@@ -61,7 +67,7 @@ if ($stmt) {
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Data Warga Terdaftar</h1>
             <p class="text-sm text-gray-600 mt-1">Pantau dan kelola akun warga dengan tampilan yang nyaman di layar mobile.</p>
         </div>
-        <a href="<?php echo BASE_URL; ?>index.php?page=warga/tambah" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition w-full sm:w-auto">
+        <a href="<?php echo htmlspecialchars($warga_tambah_page); ?>" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition w-full sm:w-auto">
             <i class="fas fa-user-plus"></i> Tambah Warga Baru
         </a>
     </div>
@@ -96,6 +102,7 @@ if ($stmt) {
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (!empty($data_warga)): ?>
                             <?php foreach($data_warga as $index => $row): ?>
+                            <?php $encoded_id = urlencode($row['id_pengguna']); ?>
                             <tr class="hover:bg-sky-50/50 transition-colors duration-150">
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $index + 1; ?></td>
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold flex items-center gap-2">
@@ -113,10 +120,10 @@ if ($stmt) {
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600"><?php echo format_rupiah($row['saldo']); ?></td>
                                 <td class="px-4 sm:px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title="<?php echo htmlspecialchars($row['alamat']); ?>"><?php echo htmlspecialchars($row['alamat'] ? $row['alamat'] : '-'); ?></td>
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                                    <a href="<?php echo BASE_URL; ?>index.php?page=warga/edit&id=<?php echo $row['id_pengguna']; ?>" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition">
+                                    <a href="<?php echo htmlspecialchars($warga_edit_base . $encoded_id); ?>" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition">
                                         <i class="fas fa-edit"></i><span class="hidden lg:inline">Edit</span>
                                     </a>
-                                    <a href="<?php echo BASE_URL; ?>index.php?page=warga/hapus&id=<?php echo $row['id_pengguna']; ?>"
+                                    <a href="<?php echo htmlspecialchars($warga_hapus_base . $encoded_id); ?>"
                                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"
                                        onclick="return confirm('Apakah Anda yakin ingin menghapus warga ini? Semua data transaksi terkait juga akan terhapus.');">
                                        <i class="fas fa-trash"></i><span class="hidden lg:inline">Hapus</span>
@@ -131,10 +138,10 @@ if ($stmt) {
                                         <i class="fas fa-users-slash fa-3x text-gray-400"></i>
                                         <?php if(!empty($search)): ?>
                                             Tidak ada data warga ditemukan dengan kata kunci "<strong><?php echo htmlspecialchars($search); ?></strong>".
-                                            <br>Coba kata kunci lain atau <a href="<?php echo BASE_URL; ?>index.php?page=warga/data" class="text-sky-500 hover:underline mt-2">tampilkan semua warga</a>.
+                                            <br>Coba kata kunci lain atau <a href="<?php echo htmlspecialchars($warga_data_page); ?>" class="text-sky-500 hover:underline mt-2">tampilkan semua warga</a>.
                                         <?php else: ?>
                                             Belum ada data warga terdaftar.
-                                            <br><a href="<?php echo BASE_URL; ?>index.php?page=warga/tambah" class="text-sky-500 hover:underline mt-2">Tambahkan warga baru sekarang.</a>
+                                            <br><a href="<?php echo htmlspecialchars($warga_tambah_page); ?>" class="text-sky-500 hover:underline mt-2">Tambahkan warga baru sekarang.</a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -148,6 +155,7 @@ if ($stmt) {
         <div class="grid gap-4 md:hidden">
             <?php if (!empty($data_warga)): ?>
                 <?php foreach($data_warga as $index => $row): ?>
+                    <?php $encoded_id = urlencode($row['id_pengguna']); ?>
                     <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-md">
                         <div class="flex items-start justify-between gap-3">
                             <div class="flex items-center gap-3">
@@ -178,10 +186,10 @@ if ($stmt) {
                         </div>
 
                         <div class="mt-4 flex flex-wrap gap-2">
-                            <a href="<?php echo BASE_URL; ?>index.php?page=warga/edit&id=<?php echo $row['id_pengguna']; ?>" class="flex-1 min-w-[48%] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 font-semibold text-sm transition">
+                            <a href="<?php echo htmlspecialchars($warga_edit_base . $encoded_id); ?>" class="flex-1 min-w-[48%] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 font-semibold text-sm transition">
                                 <i class="fas fa-edit"></i>Edit
                             </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?page=warga/hapus&id=<?php echo $row['id_pengguna']; ?>"
+                            <a href="<?php echo htmlspecialchars($warga_hapus_base . $encoded_id); ?>"
                                class="flex-1 min-w-[48%] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-sm transition"
                                onclick="return confirm('Apakah Anda yakin ingin menghapus warga ini? Semua data transaksi terkait juga akan terhapus.');">
                                <i class="fas fa-trash"></i>Hapus
@@ -193,7 +201,7 @@ if ($stmt) {
                 <div class="bg-white border border-gray-100 rounded-2xl p-6 text-center shadow-md">
                     <i class="fas fa-users-slash fa-2x text-gray-400 mb-2"></i>
                     <p class="text-gray-600 text-sm">Belum ada data warga terdaftar.</p>
-                    <a href="<?php echo BASE_URL; ?>index.php?page=warga/tambah" class="mt-3 inline-flex items-center gap-2 text-sky-600 font-semibold">Tambah sekarang <i class="fas fa-arrow-right"></i></a>
+                    <a href="<?php echo htmlspecialchars($warga_tambah_page); ?>" class="mt-3 inline-flex items-center gap-2 text-sky-600 font-semibold">Tambah sekarang <i class="fas fa-arrow-right"></i></a>
                 </div>
             <?php endif; ?>
         </div>
