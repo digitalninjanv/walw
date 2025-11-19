@@ -1,9 +1,13 @@
 <?php // includes/footer.php ?>
-            </main> <?php if (is_logged_in()): ?>
-        </div> </div> <?php else: // Kondisi jika pengguna tidak login (misalnya di halaman login) ?>
-    </div> <?php endif; // Akhir dari if (is_logged_in()) untuk penutup div layout utama ?>
+            </main>
+<?php if (is_logged_in()): ?>
+        </div>
+    </div>
+<?php else: // Kondisi jika pengguna tidak login (misalnya di halaman login) ?>
+    </div>
+<?php endif; // Akhir dari if (is_logged_in()) untuk penutup div layout utama ?>
 
-<footer class="text-center py-4 <?php echo is_logged_in() ? 'md:pl-64' : ''; ?> bg-gray-200 text-gray-600 text-sm print:hidden">
+<footer class="text-center py-6 <?php echo is_logged_in() ? 'md:pl-72' : ''; ?> bg-slate-900 text-slate-300 text-sm print:hidden border-t border-slate-800">
     <p>&copy; <?php echo date('Y'); ?> Bank Sampah Digital. Dibuat dengan <i class="fas fa-heart text-red-500"></i>.</p>
 </footer>
 
