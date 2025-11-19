@@ -34,12 +34,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="text-left md:text-right">
-                <p class="text-slate-400 text-xs uppercase tracking-widest">Dibangun oleh</p>
+            <div class="text-left md:text-right space-y-2">
+                <p class="text-slate-500 text-[0.65rem] uppercase tracking-[0.4em]">Powered by</p>
                 <a href="https://github.com/digitalninjanv" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base font-semibold text-emerald-300 hover:text-emerald-200 transition">
-                    <i class="fab fa-github text-lg"></i> digitalninjanv
+                    <i class="fab fa-github text-lg"></i>
+                    <span>digitalninjanv</span>
+                    <span aria-hidden="true" class="text-slate-500">&rarr;</span>
                 </a>
-                <p class="text-slate-500 text-xs mt-1">Ikuti perjalanan pengembangan dan kontribusi sumber terbuka.</p>
             </div>
         </div>
         <div class="border-t border-slate-800/50 pt-4 flex flex-col gap-2 text-center md:flex-row md:items-center md:justify-between">
