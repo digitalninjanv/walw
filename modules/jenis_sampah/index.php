@@ -187,22 +187,22 @@ if ($result) {
         }
     ?>
 
-    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-        <p class="text-sm text-gray-600">
+    <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+        <p class="text-sm text-gray-600 text-center sm:text-left">
             <?php if ($total_jenis > 0): ?>
                 Menampilkan <span class="font-semibold"><?php echo $start_item; ?>-<?php echo $end_item; ?></span> dari <span class="font-semibold"><?php echo $total_jenis; ?></span> jenis sampah.
             <?php else: ?>
                 Belum ada data jenis sampah untuk ditampilkan.
             <?php endif; ?>
         </p>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col w-full gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
             <a href="<?php echo !$prev_disabled ? BASE_URL . 'index.php?' . http_build_query($prev_params) : 'javascript:void(0);'; ?>"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $prev_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
+               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold w-full sm:w-auto <?php echo $prev_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
                 <i class="fas fa-arrow-left"></i> Sebelumnya
             </a>
-            <span class="text-sm text-gray-500">Halaman <?php echo $current_page; ?> dari <?php echo max($total_pages, 1); ?></span>
+            <span class="text-sm text-gray-500 text-center">Halaman <?php echo $current_page; ?> dari <?php echo max($total_pages, 1); ?></span>
             <a href="<?php echo !$next_disabled ? BASE_URL . 'index.php?' . http_build_query($next_params) : 'javascript:void(0);'; ?>"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold <?php echo $next_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
+               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold w-full sm:w-auto <?php echo $next_disabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50' : 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100'; ?>">
                 Berikutnya <i class="fas fa-arrow-right"></i>
             </a>
         </div>
