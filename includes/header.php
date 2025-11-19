@@ -19,44 +19,82 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #1d4ed8;
+            --surface: rgba(255, 255, 255, 0.92);
+        }
+
         /* Custom scrollbar (opsional, tapi bisa mempercantik) */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        
+        ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
         body {
             font-family: 'Poppins', 'Inter', sans-serif;
-            background-color: #f0f9ff; /* Light sky blue background */
+            background: radial-gradient(circle at 20% 20%, rgba(14,165,233,0.08), transparent 25%),
+                        radial-gradient(circle at 80% 0%, rgba(99,102,241,0.08), transparent 25%),
+                        #f8fafc;
+            color: #0f172a;
         }
+
         .sidebar {
             transition: transform 0.3s ease-in-out;
+            backdrop-filter: blur(12px);
         }
+
         .sidebar-overlay { /* Untuk efek gelap di belakang sidebar mobile */
             transition: opacity 0.3s ease-in-out;
         }
+
         .active-nav-link {
-            background-color: #2563eb; /* bg-blue-600 */
+            background: linear-gradient(120deg, #0ea5e9, #6366f1);
             color: white;
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
         }
-        .active-nav-link i {
-            color: white;
+
+        .active-nav-link i { color: white; }
+
+        .card-shell {
+            background: var(--surface);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+        }
+
+        .glass-header {
+            backdrop-filter: blur(18px);
+            background: rgba(255, 255, 255, 0.86);
+        }
+
+        .content-gradient {
+            background: linear-gradient(180deg, rgba(14,165,233,0.05), transparent 40%);
+        }
+
+        .pill {
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.65);
         }
     </style>
 </head>
-<body class="bg-slate-100 antialiased">
+<body class="antialiased">
 
 <?php if (is_logged_in()): ?>
-    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 z-20 bg-black bg-opacity-50 opacity-0 pointer-events-none md:hidden"></div>
+    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 z-20 bg-slate-900/50 opacity-0 pointer-events-none md:hidden"></div>
 
-    <div class="flex h-screen">
-        <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-b from-sky-500 to-indigo-600 text-white p-4 space-y-4 transform -translate-x-full md:translate-x-0 md:relative md:flex md:flex-col shadow-lg">
-            <a href="<?php echo BASE_URL; ?>index.php?page=dashboard" class="flex items-center space-x-3 px-2 py-3 mb-4">
-                <i class="fas fa-recycle fa-2x text-sky-200"></i>
-                <span class="text-2xl font-bold">Bank Sampah</span>
+    <div class="flex min-h-screen">
+        <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-30 w-72 bg-gradient-to-b from-sky-600 via-sky-700 to-indigo-700 text-white p-5 space-y-4 transform -translate-x-full md:translate-x-0 md:relative md:flex md:flex-col shadow-2xl rounded-r-3xl">
+            <a href="<?php echo BASE_URL; ?>index.php?page=dashboard" class="flex items-center space-x-3 px-2 py-3 mb-2">
+                <div class="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center shadow-inner">
+                    <i class="fas fa-recycle text-2xl text-sky-100"></i>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-wider text-sky-100/80">Bank Sampah</p>
+                    <span class="text-xl font-bold leading-tight">Digital</span>
+                </div>
             </a>
 
-            <nav class="flex-grow overflow-y-auto">
+            <nav class="flex-grow overflow-y-auto pr-1 space-y-1">
                 <?php
                 if ($user_level == 'admin') {
                     include 'sidebar_admin.php';
@@ -67,35 +105,53 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
                 }
                 ?>
             </nav>
-            
-            <div class="pt-4 border-t border-sky-400">
-                 <a href="<?php echo BASE_URL; ?>index.php?page=profil" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-sky-600 transition duration-200 <?php echo ($current_page == 'profil') ? 'active-nav-link' : ''; ?>">
-                    <i class="fas fa-user-circle w-5"></i>
-                    <span>Profil Saya</span>
+
+            <div class="pt-4 border-t border-white/10 space-y-2">
+                <a href="<?php echo BASE_URL; ?>index.php?page=profil" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/10 transition duration-200 <?php echo ($current_page == 'profil') ? 'active-nav-link' : ''; ?>">
+                    <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+                        <i class="fas fa-user-circle w-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-white/80">Akun</p>
+                        <span class="font-semibold">Profil Saya</span>
+                    </div>
                 </a>
-                <a href="<?php echo BASE_URL; ?>index.php?page=auth/logout" class="flex items-center space-x-3 px-4 py-3 mt-1 rounded-lg text-red-200 hover:bg-red-500 hover:text-white transition duration-200">
-                    <i class="fas fa-sign-out-alt w-5"></i>
-                    <span>Logout</span>
+                <a href="<?php echo BASE_URL; ?>index.php?page=auth/logout" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-rose-100 hover:bg-rose-500/20 hover:text-white transition duration-200">
+                    <div class="w-9 h-9 rounded-xl bg-rose-500/20 flex items-center justify-center">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                    </div>
+                    <span class="font-semibold">Keluar</span>
                 </a>
             </div>
         </aside>
 
-        <div id="content-area" class="flex-1 flex flex-col overflow-hidden md:ml-0"> <header class="bg-white shadow-md p-3 sm:p-4">
-                <div class="container mx-auto flex justify-between items-center">
-                    <div class="flex items-center">
-                        <button id="menu-button" class="text-gray-700 md:hidden mr-3 p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+        <div id="content-area" class="flex-1 flex flex-col overflow-hidden md:ml-0 bg-slate-50 content-gradient">
+            <header class="glass-header sticky top-0 z-10 border-b border-slate-200/70 shadow-sm">
+                <div class="px-4 sm:px-6 py-3 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <button id="menu-button" class="text-slate-700 md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             <i class="fas fa-bars fa-lg"></i>
                         </button>
-                        <h1 class="text-lg sm:text-xl font-semibold text-gray-800 truncate">
-                             <span class="font-bold"><?php echo htmlspecialchars($user_nama); ?></span>
-                        </h1>
-                    </div>
-                    <div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Selamat datang</p>
+                            <h1 class="text-lg sm:text-xl font-semibold text-slate-800 flex items-center gap-2">
+                                <span class="font-bold"><?php echo htmlspecialchars($user_nama); ?></span>
+                                <?php if ($user_level): ?>
+                                    <span class="pill text-xs px-3 py-1 rounded-full text-slate-600 inline-flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span><?php echo ucfirst($user_level); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </h1>
                         </div>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-3 text-sm text-slate-500">
+                        <i class="fas fa-cloud-moon text-sky-500"></i>
+                        <span>Beroperasi 24/7</span>
+                    </div>
                 </div>
             </header>
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-100 p-4 sm:p-6">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
                 <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg shadow" role="alert">
                         <div class="flex">
@@ -122,5 +178,6 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
                     <?php unset($_SESSION['error_message']); ?>
                 <?php endif; ?>
 <?php else: // Jika belum login (misalnya halaman login) ?>
-    <div class="min-h-screen flex flex-col"> <main class="flex-1">
-            <?php endif; ?>
+    <div class="min-h-screen flex flex-col bg-slate-50">
+        <main class="flex-1">
+<?php endif; ?>
