@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id_warga']) && isset($
         if (!mysqli_stmt_execute($stmt_transaksi)) {
             throw new Exception("Gagal menyimpan data transaksi penarikan: " . mysqli_stmt_error($stmt_transaksi));
         }
+        $id_transaksi_tarik = mysqli_insert_id($koneksi);
         mysqli_stmt_close($stmt_transaksi);
 
         // 2. Update saldo warga (kurangi saldo)
@@ -66,6 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id_warga']) && isset($
 
         mysqli_commit($koneksi);
         $_SESSION['success_message'] = "Penarikan saldo sebesar " . format_rupiah($jumlah_penarikan) . " berhasil dicatat.";
+        $_SESSION['last_transaksi_id'] = $id_transaksi_tarik;
+        $_SESSION['last_transaksi_tipe'] = 'tarik_saldo';
         redirect(BASE_URL . 'index.php?page=transaksi/tarik_saldo');
 
     } catch (Exception $e) {
