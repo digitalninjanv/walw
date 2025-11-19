@@ -42,7 +42,10 @@ if ($stmt) {
         while ($row = mysqli_fetch_assoc($result)) {
             $data_warga[] = $row;
         }
+        mysqli_free_result($result);
     }
+
+    mysqli_stmt_close($stmt);
 } else {
     error_log("MySQLi prepare error in warga/index.php: " . mysqli_error($koneksi));
     $result = false;
@@ -196,9 +199,3 @@ if ($stmt) {
         </div>
     </div>
 </div>
-
-<?php
-if ($stmt) {
-    mysqli_stmt_close($stmt);
-}
-?>
