@@ -16,7 +16,7 @@
                 Powered by
                 <a href="https://github.com/digitalninjanv" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-semibold text-emerald-300 hover:text-emerald-200 transition">
                     <i class="fab fa-github text-base"></i>
-                    <span>github.com/digitalninjanv</span>
+                    <span>digitalninjanv</span>
                 </a>
             </p>
         </div>
