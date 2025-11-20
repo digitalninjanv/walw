@@ -19,102 +19,138 @@ mysqli_data_seek($result_jenis_sampah, 0);
 
 ?>
 <div class="container mx-auto px-4 py-8" x-data="transaksiSetorForm()">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Input Setoran Sampah</h1>
-
-    <form action="<?php echo BASE_URL; ?>index.php?page=transaksi/proses_setor" method="POST" @submit.prevent="submitForm">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="bg-gradient-to-r from-sky-600 to-emerald-500 text-white rounded-2xl p-6 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <label for="id_warga" class="block text-sm font-medium text-gray-700 mb-1">Pilih Warga <span class="text-red-500">*</span></label>
-                    <select name="id_warga" id="id_warga" required x-model="formData.id_warga"
-                            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                        <option value="">-- Pilih Warga --</option>
-                        <?php while($warga = mysqli_fetch_assoc($result_warga)): ?>
-                        <option value="<?php echo $warga['id_pengguna']; ?>">
-                            <?php echo htmlspecialchars($warga['nama_lengkap']) . " (" . htmlspecialchars($warga['username']) . ")"; ?>
-                        </option>
-                        <?php endwhile; ?>
-                    </select>
+                    <p class="text-sm uppercase tracking-widest text-white/80">Transaksi</p>
+                    <h1 class="text-2xl sm:text-3xl font-bold">Input Setoran Sampah</h1>
+                    <p class="mt-1 text-white/80 text-sm">Pastikan data warga dan detail sampah diisi lengkap untuk pencatatan cepat.</p>
                 </div>
-                <div>
-                    <label for="tanggal_transaksi" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Transaksi <span class="text-red-500">*</span></label>
-                    <input type="datetime-local" name="tanggal_transaksi" id="tanggal_transaksi" required
-                           value="<?php echo date('Y-m-d\TH:i'); ?>"
-                           class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                </div>
-            </div>
-
-            <h2 class="text-xl font-semibold text-gray-700 mb-3">Detail Sampah Disetor</h2>
-            <div id="detail-sampah-container" class="space-y-4 mb-6">
-                <template x-for="(item, index) in formData.items" :key="index">
-                    <div class="grid grid-cols-12 gap-3 p-3 border rounded-lg items-end bg-gray-50">
-                        <div class="col-span-12 sm:col-span-5">
-                            <label class="block text-xs font-medium text-gray-600">Jenis Sampah</label>
-                            <select :name="'items[' + index + '][id_jenis_sampah]'" x-model="item.id_jenis_sampah" @change="updateHarga(index, $event.target.value)" required
-                                    class="mt-1 block w-full px-2 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                <option value="">-- Pilih Sampah --</option>
-                                <?php foreach($jenis_sampah_data as $js): ?>
-                                <option value="<?php echo $js['id_jenis_sampah']; ?>" data-harga="<?php echo $js['harga_per_kg']; ?>">
-                                    <?php echo htmlspecialchars($js['nama_sampah']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-span-6 sm:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">Berat (Kg)</label>
-                            <input type="number" :name="'items[' + index + '][berat_kg]'" x-model.number="item.berat_kg" @input="hitungSubtotal(index)" step="0.01" min="0.01" required
-                                   class="mt-1 block w-full px-2 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                        </div>
-                        <div class="col-span-6 sm:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">Harga/Kg</label>
-                            <input type="number" :name="'items[' + index + '][harga_saat_setor]'" x-model.number="item.harga_saat_setor" readonly
-                                   class="mt-1 block w-full px-2 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div class="col-span-10 sm:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">Subtotal</label>
-                            <input type="text" :value="formatRupiah(item.subtotal_nilai)" readonly
-                                   class="mt-1 block w-full px-2 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm text-right">
-                        </div>
-                        <div class="col-span-2 sm:col-span-1 flex items-end">
-                            <button type="button" @click="removeItem(index)" title="Hapus item"
-                                    class="mt-1 w-full text-red-500 hover:text-red-700 px-2 py-2 rounded-md border border-red-300 hover:bg-red-100 transition">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
+                <div class="flex items-center gap-3 bg-white/15 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/20">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-sky-600 font-semibold">&#43;</span>
+                    <div>
+                        <p class="text-xs text-white/70">Status</p>
+                        <p class="font-semibold">Form Siap Digunakan</p>
                     </div>
-                </template>
+                </div>
             </div>
+        </div>
 
-            <button type="button" @click="addItem()"
-                    class="mb-6 bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
-                <i class="fas fa-plus mr-2"></i> Tambah Jenis Sampah Lain
-            </button>
+        <form action="<?php echo BASE_URL; ?>index.php?page=transaksi/proses_setor" method="POST" @submit.prevent="submitForm" class="space-y-6">
+            <div class="bg-white/70 backdrop-blur shadow-xl rounded-2xl border border-gray-100 p-5 sm:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+                    <div class="space-y-2">
+                        <label for="id_warga" class="block text-sm font-semibold text-gray-800">Pilih Warga <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select name="id_warga" id="id_warga" required x-model="formData.id_warga"
+                                    class="peer block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200">
+                                <option value="" class="text-gray-400">-- Pilih Warga --</option>
+                                <?php while($warga = mysqli_fetch_assoc($result_warga)): ?>
+                                <option value="<?php echo $warga['id_pengguna']; ?>">
+                                    <?php echo htmlspecialchars($warga['nama_lengkap']) . " (" . htmlspecialchars($warga['username']) . ")"; ?>
+                                </option>
+                                <?php endwhile; ?>
+                            </select>
+                            <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+                        </div>
+                        <p class="text-xs text-gray-500">Nama warga ditampilkan beserta username untuk meminimalkan salah pilih.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="tanggal_transaksi" class="block text-sm font-semibold text-gray-800">Tanggal Transaksi <span class="text-red-500">*</span></label>
+                        <input type="datetime-local" name="tanggal_transaksi" id="tanggal_transaksi" required
+                               value="<?php echo date('Y-m-d\TH:i'); ?>"
+                               class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+                        <p class="text-xs text-gray-500">Waktu otomatis terisi sesuai zona Jakarta dan bisa disesuaikan.</p>
+                    </div>
+                </div>
 
-            <div class="mb-6">
-                <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>
-                <textarea name="keterangan" id="keterangan" rows="2" x-model="formData.keterangan"
-                          class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"></textarea>
-            </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Detail setoran</p>
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Sampah yang disetor</h2>
+                    </div>
+                    <button type="button" @click="addItem()" class="inline-flex items-center gap-2 rounded-lg bg-sky-50 text-sky-600 px-3 py-2 text-sm font-semibold border border-sky-100 hover:bg-sky-100 transition">
+                        <i class="fas fa-plus"></i>
+                        Tambah Item
+                    </button>
+                </div>
 
-            <div class="mt-6 p-4 border-t border-gray-200">
-                <div class="flex justify-end items-center">
-                    <span class="text-lg font-semibold text-gray-700 mr-4">Total Nilai Setoran:</span>
-                    <span class="text-2xl font-bold text-green-600" x-text="formatRupiah(totalNilaiKeseluruhan)">Rp 0</span>
+                <div id="detail-sampah-container" class="space-y-4">
+                    <template x-for="(item, index) in formData.items" :key="index">
+                        <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-4 sm:p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-semibold text-gray-800">Item <span x-text="index + 1"></span></p>
+                                <button type="button" @click="removeItem(index)" class="text-red-500 hover:text-red-600 text-sm font-semibold inline-flex items-center gap-1">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-12 gap-3 sm:gap-4">
+                                <div class="col-span-12 sm:col-span-5 space-y-1">
+                                    <label class="text-xs font-medium text-gray-600">Jenis Sampah</label>
+                                    <div class="relative">
+                                        <select :name="'items[' + index + '][id_jenis_sampah]'" x-model="item.id_jenis_sampah" @change="updateHarga(index, $event.target.value)" required
+                                                class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200">
+                                            <option value="">-- Pilih Sampah --</option>
+                                            <?php foreach($jenis_sampah_data as $js): ?>
+                                            <option value="<?php echo $js['id_jenis_sampah']; ?>" data-harga="<?php echo $js['harga_per_kg']; ?>">
+                                                <?php echo htmlspecialchars($js['nama_sampah']); ?>
+                                            </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-span-6 sm:col-span-2 space-y-1">
+                                    <label class="text-xs font-medium text-gray-600">Berat (Kg)</label>
+                                    <input type="number" :name="'items[' + index + '][berat_kg]'" x-model.number="item.berat_kg" @input="hitungSubtotal(index)" step="0.01" min="0.01" required
+                                           class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200" />
+                                </div>
+                                <div class="col-span-6 sm:col-span-2 space-y-1">
+                                    <label class="text-xs font-medium text-gray-600">Harga/Kg</label>
+                                    <input type="number" :name="'items[' + index + '][harga_saat_setor]'" x-model.number="item.harga_saat_setor" readonly
+                                           class="block w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2.5 text-sm text-gray-700 shadow-sm" />
+                                </div>
+                                <div class="col-span-12 sm:col-span-3 space-y-1">
+                                    <label class="text-xs font-medium text-gray-600">Subtotal</label>
+                                    <input type="text" :value="formatRupiah(item.subtotal_nilai)" readonly
+                                           class="block w-full rounded-lg border border-gray-200 bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm text-right" />
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="mt-6">
+                    <label for="keterangan" class="block text-sm font-semibold text-gray-800 mb-2">Keterangan (Opsional)</label>
+                    <textarea name="keterangan" id="keterangan" rows="3" x-model="formData.keterangan"
+                              class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+                              placeholder="Contoh: Setoran rutin bulanan atau detail catatan lain"></textarea>
+                </div>
+
+                <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-100 pt-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fas fa-wallet"></i></span>
+                        <span>Total nilai otomatis terakumulasi dari setiap item.</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-sm text-gray-500">Total Setoran</span>
+                        <span class="text-2xl font-extrabold text-emerald-600" x-text="formatRupiah(totalNilaiKeseluruhan)">Rp 0</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-end space-x-3">
-                <a href="<?php echo BASE_URL; ?>index.php?page=dashboard" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-150 ease-in-out">
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+                <a href="<?php echo BASE_URL; ?>index.php?page=dashboard" class="inline-flex items-center justify-center rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition shadow-sm">
                     Batal
                 </a>
                 <button type="submit" name="proses_setor"
-                        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out">
-                    <i class="fas fa-save mr-2"></i> Simpan Setoran
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300">
+                    <i class="fas fa-save"></i> Simpan Setoran
                 </button>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 <script>
