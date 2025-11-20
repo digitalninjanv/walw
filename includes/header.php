@@ -75,6 +75,22 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
             border: 1px solid rgba(148, 163, 184, 0.4);
             background: rgba(255, 255, 255, 0.65);
         }
+
+        .welcome-card {
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.8));
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+        }
+
+        .avatar-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.18));
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            color: #0ea5e9;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -127,26 +143,35 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
 
         <div id="content-area" class="flex-1 flex flex-col overflow-hidden md:ml-0 bg-slate-50 content-gradient">
             <header class="glass-header sticky top-0 z-10 border-b border-slate-200/70 shadow-sm">
-                <div class="px-4 sm:px-6 py-3 flex justify-between items-center">
+                <?php
+                    $hour = (int) date('G');
+                    if ($hour >= 5 && $hour < 11) {
+                        $greeting = 'Selamat pagi';
+                    } elseif ($hour >= 11 && $hour < 15) {
+                        $greeting = 'Selamat siang';
+                    } elseif ($hour >= 15 && $hour < 18) {
+                        $greeting = 'Selamat sore';
+                    } else {
+                        $greeting = 'Selamat malam';
+                    }
+                ?>
+                <div class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <button id="menu-button" class="text-slate-700 md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             <i class="fas fa-bars fa-lg"></i>
                         </button>
                         <div>
-                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Selamat datang</p>
-                            <h1 class="text-lg sm:text-xl font-semibold text-slate-800 flex items-center gap-2">
-                                <span class="font-bold"><?php echo htmlspecialchars($user_nama); ?></span>
+                            <p class="text-xs text-slate-500 font-medium uppercase tracking-[0.14em]">bank sampah digital</p>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-lg font-semibold text-slate-800 leading-tight"><?php echo $greeting; ?><?php echo $user_nama ? ', ' . htmlspecialchars($user_nama) : ''; ?></span>
                                 <?php if ($user_level): ?>
-                                    <span class="pill text-xs px-3 py-1 rounded-full text-slate-600 inline-flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span><?php echo ucfirst($user_level); ?>
+                                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-sm font-medium text-slate-700">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                        <?php echo ucfirst($user_level); ?>
                                     </span>
                                 <?php endif; ?>
-                            </h1>
+                            </div>
                         </div>
-                    </div>
-                    <div class="hidden sm:flex items-center gap-3 text-sm text-slate-500">
-                        <i class="fas fa-cloud-moon text-sky-500"></i>
-                        <span>Beroperasi 24/7</span>
                     </div>
                 </div>
             </header>
