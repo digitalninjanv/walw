@@ -6,6 +6,17 @@ if (session_status() == PHP_SESSION_NONE) { // Pastikan session sudah dimulai
 $current_page = isset($_GET['page']) ? $_GET['page'] : '';
 $user_level = isset($_SESSION['user_level']) ? $_SESSION['user_level'] : null;
 $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
+
+$current_hour = intval(date('H'));
+if ($current_hour >= 5 && $current_hour < 12) {
+    $greeting = 'Selamat pagi';
+} elseif ($current_hour >= 12 && $current_hour < 15) {
+    $greeting = 'Selamat siang';
+} elseif ($current_hour >= 15 && $current_hour < 18) {
+    $greeting = 'Selamat sore';
+} else {
+    $greeting = 'Selamat malam';
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -143,38 +154,20 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
 
         <div id="content-area" class="flex-1 flex flex-col overflow-hidden md:ml-0 bg-slate-50 content-gradient">
             <header class="glass-header sticky top-0 z-10 border-b border-slate-200/70 shadow-sm">
-                <div class="px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <button id="menu-button" class="text-slate-700 md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <i class="fas fa-bars fa-lg"></i>
-                        </button>
-                        <div class="welcome-card rounded-2xl px-4 py-3 w-full sm:w-auto flex items-center gap-3">
-                            <div class="avatar-circle flex items-center justify-center">
-                                <i class="fas fa-user text-lg"></i>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400">Selamat datang kembali</p>
-                                <div class="flex flex-wrap items-center gap-2 text-slate-800">
-                                    <span class="text-lg font-semibold leading-tight"><?php echo htmlspecialchars($user_nama); ?></span>
-                                    <?php if ($user_level): ?>
-                                        <span class="pill text-[11px] px-3 py-1 rounded-full inline-flex items-center gap-2 font-medium text-slate-700">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(74,222,128,0.2)]"></span>
-                                            <?php echo ucfirst($user_level); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                                <p class="text-xs text-slate-500">Kelola aktivitas bank sampah dengan nyaman.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between sm:justify-end gap-3 text-sm text-slate-600 w-full sm:w-auto">
-                        <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 bg-white shadow-sm">
-                            <i class="fas fa-cloud-sun text-sky-500"></i>
-                            <span class="font-medium">Beroperasi 24/7</span>
-                        </div>
-                        <div class="flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 bg-white shadow-sm">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span class="font-medium text-slate-700">Status Aman</span>
+                <div class="px-4 sm:px-6 py-3 flex items-center gap-3">
+                    <button id="menu-button" class="text-slate-700 md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400"><?php echo $greeting; ?></span>
+                        <div class="flex items-center gap-3">
+                            <p class="text-2xl font-extrabold leading-tight text-slate-900"><?php echo htmlspecialchars($user_nama); ?></p>
+                            <?php if ($user_level): ?>
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                    <?php echo ucfirst($user_level); ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
