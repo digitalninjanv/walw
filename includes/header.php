@@ -6,6 +6,17 @@ if (session_status() == PHP_SESSION_NONE) { // Pastikan session sudah dimulai
 $current_page = isset($_GET['page']) ? $_GET['page'] : '';
 $user_level = isset($_SESSION['user_level']) ? $_SESSION['user_level'] : null;
 $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
+
+$current_hour = intval(date('H'));
+if ($current_hour >= 5 && $current_hour < 12) {
+    $greeting = 'Selamat pagi';
+} elseif ($current_hour >= 12 && $current_hour < 15) {
+    $greeting = 'Selamat siang';
+} elseif ($current_hour >= 15 && $current_hour < 18) {
+    $greeting = 'Selamat sore';
+} else {
+    $greeting = 'Selamat malam';
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -152,18 +163,14 @@ $user_nama = isset($_SESSION['user_nama']) ? $_SESSION['user_nama'] : 'Tamu';
                             <div class="avatar-circle flex items-center justify-center">
                                 <i class="fas fa-user text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400">Selamat datang kembali</p>
-                                <div class="flex flex-wrap items-center gap-2 text-slate-800">
-                                    <span class="text-lg font-semibold leading-tight"><?php echo htmlspecialchars($user_nama); ?></span>
-                                    <?php if ($user_level): ?>
-                                        <span class="pill text-[11px] px-3 py-1 rounded-full inline-flex items-center gap-2 font-medium text-slate-700">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(74,222,128,0.2)]"></span>
-                                            <?php echo ucfirst($user_level); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                                <p class="text-xs text-slate-500">Kelola aktivitas bank sampah dengan nyaman.</p>
+                            <div class="space-y-2">
+                                <p class="text-lg font-semibold leading-tight text-slate-800"><?php echo $greeting; ?>, <?php echo htmlspecialchars($user_nama); ?></p>
+                                <?php if ($user_level): ?>
+                                    <span class="pill text-[11px] px-3 py-1 rounded-full inline-flex items-center gap-2 font-medium text-slate-700">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(74,222,128,0.2)]"></span>
+                                        <?php echo ucfirst($user_level); ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
