@@ -80,9 +80,14 @@ mysqli_stmt_close($stmt_summary);
                 <label for="bulan_tahun_input" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Pilih Bulan</label>
                 <input type="month" name="bulan_tahun" id="bulan_tahun_input" value="<?php echo $bulan_tahun_input; ?>" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-sm">
             </div>
-            <button type="submit" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold shadow-lg hover:shadow-xl transition">
-                <i class="fas fa-sync-alt mr-2"></i> Tampilkan
-            </button>
+            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <button type="submit" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold shadow-lg hover:shadow-xl transition w-full md:w-auto">
+                    <i class="fas fa-sync-alt mr-2"></i> Tampilkan
+                </button>
+                <a href="<?php echo BASE_URL; ?>index.php?page=laporan/export&report_type=bulanan&bulan_tahun=<?php echo $bulan_tahun_input; ?>" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white text-indigo-700 border border-indigo-200 font-semibold shadow-md hover:shadow-lg transition w-full md:w-auto">
+                    <i class="fas fa-file-excel mr-2"></i> Ekspor Excel
+                </a>
+            </div>
         </form>
     </div>
 

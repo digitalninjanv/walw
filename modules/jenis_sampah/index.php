@@ -43,9 +43,14 @@ if ($result) {
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Data Jenis Sampah</h1>
             <p class="text-sm text-gray-600 mt-1">Perbarui harga dan satuan dengan tampilan ringan dan optimal di mobile.</p>
         </div>
-        <a href="<?php echo BASE_URL; ?>index.php?page=jenis_sampah/tambah" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition w-full sm:w-auto">
-            <i class="fas fa-plus"></i> Tambah Jenis Sampah
-        </a>
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <a href="<?php echo BASE_URL; ?>index.php?page=jenis_sampah/tambah" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition w-full sm:w-auto">
+                <i class="fas fa-plus"></i> Tambah Jenis Sampah
+            </a>
+            <a href="<?php echo BASE_URL; ?>index.php?page=laporan/export&report_type=jenis_sampah<?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="inline-flex items-center justify-center gap-2 bg-white text-emerald-700 border border-emerald-200 font-semibold py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition w-full sm:w-auto">
+                <i class="fas fa-file-excel"></i> Ekspor Excel
+            </a>
+        </div>
     </div>
 
     <form method="GET" action="<?php echo BASE_URL; ?>index.php" class="mb-6">
