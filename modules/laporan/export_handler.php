@@ -77,7 +77,31 @@ try {
             buildLaporanHarianSheet($sheet, $koneksi, $tanggal_export, $Alignment, $Border, $Fill, $DataType); // Pass class-name
             $filename = "Laporan_Harian_" . str_replace('-', '', $tanggal_export) . ".xlsx";
             break;
-        
+        case 'warga':
+            $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
+            $sheet->setTitle('Data Warga');
+            $spreadsheet->getProperties()->setCreator("Bank Sampah Digital")->setTitle("Data Warga");
+            buildDataWargaSheet($sheet, $koneksi, $search, $Alignment, $Border, $Fill, $DataType);
+            $filename = "Data_Warga_" . date('Ymd_His') . ".xlsx";
+            break;
+        case 'jenis_sampah':
+            $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
+            $sheet->setTitle('Jenis Sampah');
+            $spreadsheet->getProperties()->setCreator("Bank Sampah Digital")->setTitle("Data Jenis Sampah");
+            buildJenisSampahSheet($sheet, $koneksi, $search, $Alignment, $Border, $Fill, $DataType);
+            $filename = "Jenis_Sampah_" . date('Ymd_His') . ".xlsx";
+            break;
+        case 'bulanan':
+            $bulan_tahun_input = isset($_GET['bulan_tahun']) ? sanitize_input($_GET['bulan_tahun']) : date('Y-m');
+            if (!preg_match('/^\d{4}-\d{2}$/', $bulan_tahun_input)) {
+                $bulan_tahun_input = date('Y-m');
+            }
+            $sheet->setTitle('Laporan Bulanan');
+            $spreadsheet->getProperties()->setCreator("Bank Sampah Digital")->setTitle("Laporan Bulanan - " . $bulan_tahun_input);
+            buildLaporanBulananSheet($sheet, $koneksi, $bulan_tahun_input, $Alignment, $Border, $Fill, $DataType);
+            $filename = "Laporan_Bulanan_" . str_replace('-', '', $bulan_tahun_input) . ".xlsx";
+            break;
+
         default:
             throw new Exception("Jenis laporan tidak valid untuk diekspor.");
     }
@@ -181,5 +205,197 @@ function buildLaporanHarianSheet($sheet, $koneksi, $tanggal_export, $Alignment, 
 
     // Auto size columns
     foreach (range('A', 'G') as $col) { $sheet->getColumnDimension($col)->setAutoSize(true); }
+}
+
+function buildDataWargaSheet($sheet, $koneksi, $search, $Alignment, $Border, $Fill, $DataType) {
+    $headerStyle = ['font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER, 'vertical' => $Alignment::VERTICAL_CENTER], 'fill' => ['fillType' => $Fill::FILL_SOLID, 'startColor' => ['rgb' => '2563EB']]];
+    $titleStyle = ['font' => ['bold' => true, 'size' => 14], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER]];
+    $subTitleStyle = ['font' => ['bold' => true, 'size' => 11]];
+    $allBorders = ['borders' => ['allBorders' => ['borderStyle' => $Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]];
+
+    $currentRow = 1;
+    $sheet->mergeCells("A{$currentRow}:G{$currentRow}")->setCellValue("A{$currentRow}", "DAFTAR WARGA BANK SAMPAH");
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($titleStyle);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:G{$currentRow}")->setCellValue("A{$currentRow}", "Diekspor: " . format_tanggal_indonesia(date('Y-m-d')));
+    $sheet->getStyle("A{$currentRow}")->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:G{$currentRow}")->setCellValue("A{$currentRow}", "Filter Pencarian: " . ($search !== '' ? $search : 'Semua Data'));
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($subTitleStyle);
+    $currentRow += 2;
+
+    $header = ['No', 'ID Pengguna', 'Nama Lengkap', 'No. Telepon', 'Saldo (Rp)', 'Alamat', 'Tanggal Daftar'];
+    $sheet->fromArray($header, NULL, "A{$currentRow}")->getStyle("A{$currentRow}:G{$currentRow}")->applyFromArray($headerStyle);
+    $currentRow++;
+
+    $query = "SELECT id_pengguna, nama_lengkap, username, alamat, no_telepon, saldo, tanggal_daftar FROM pengguna WHERE level = 'warga'";
+    $params = [];
+    $types = '';
+    if ($search !== '') {
+        $query .= " AND (nama_lengkap LIKE ? OR username LIKE ? OR alamat LIKE ? OR no_telepon LIKE ? )";
+        $types = 'ssss';
+        $search_like = "%{$search}%";
+        $params = [$search_like, $search_like, $search_like, $search_like];
+    }
+    $query .= " ORDER BY nama_lengkap ASC";
+
+    $stmt = mysqli_prepare($koneksi, $query);
+    if (!$stmt) {
+        throw new Exception("Gagal menyiapkan query data warga: " . mysqli_error($koneksi));
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $startRowData = $currentRow;
+    $counter = 1;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $sheet->fromArray([$counter, $row['id_pengguna'], $row['nama_lengkap'], $row['no_telepon'], null, $row['alamat'], format_tanggal_indonesia($row['tanggal_daftar'])], NULL, "A{$currentRow}");
+        $sheet->setCellValueExplicit("E{$currentRow}", $row['saldo'], $DataType::TYPE_NUMERIC)->getStyle("E{$currentRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $counter++;
+        $currentRow++;
+    }
+    if ($currentRow > $startRowData) {
+        $sheet->getStyle("A{$startRowData}:G" . ($currentRow - 1))->applyFromArray($allBorders);
+    }
+    mysqli_stmt_close($stmt);
+
+    foreach (range('A', 'G') as $col) { $sheet->getColumnDimension($col)->setAutoSize(true); }
+}
+
+function buildJenisSampahSheet($sheet, $koneksi, $search, $Alignment, $Border, $Fill, $DataType) {
+    $headerStyle = ['font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER, 'vertical' => $Alignment::VERTICAL_CENTER], 'fill' => ['fillType' => $Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']]];
+    $titleStyle = ['font' => ['bold' => true, 'size' => 14], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER]];
+    $subTitleStyle = ['font' => ['bold' => true, 'size' => 11]];
+    $allBorders = ['borders' => ['allBorders' => ['borderStyle' => $Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]];
+
+    $currentRow = 1;
+    $sheet->mergeCells("A{$currentRow}:F{$currentRow}")->setCellValue("A{$currentRow}", "DATA JENIS SAMPAH");
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($titleStyle);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:F{$currentRow}")->setCellValue("A{$currentRow}", "Diekspor: " . format_tanggal_indonesia(date('Y-m-d')));
+    $sheet->getStyle("A{$currentRow}")->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:F{$currentRow}")->setCellValue("A{$currentRow}", "Filter Pencarian: " . ($search !== '' ? $search : 'Semua Data'));
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($subTitleStyle);
+    $currentRow += 2;
+
+    $header = ['No', 'ID Jenis', 'Nama Sampah', 'Harga/Satuan (Rp)', 'Satuan', 'Deskripsi'];
+    $sheet->fromArray($header, NULL, "A{$currentRow}")->getStyle("A{$currentRow}:F{$currentRow}")->applyFromArray($headerStyle);
+    $currentRow++;
+
+    $query = "SELECT id_jenis_sampah, nama_sampah, harga_per_kg, deskripsi, satuan FROM jenis_sampah";
+    $types = '';
+    $params = [];
+    if ($search !== '') {
+        $query .= " WHERE nama_sampah LIKE ? OR deskripsi LIKE ?";
+        $types = 'ss';
+        $search_like = "%{$search}%";
+        $params = [$search_like, $search_like];
+    }
+    $query .= " ORDER BY nama_sampah ASC";
+
+    $stmt = mysqli_prepare($koneksi, $query);
+    if (!$stmt) {
+        throw new Exception("Gagal menyiapkan query jenis sampah: " . mysqli_error($koneksi));
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $startRowData = $currentRow;
+    $counter = 1;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $sheet->fromArray([$counter, $row['id_jenis_sampah'], $row['nama_sampah'], null, $row['satuan'], $row['deskripsi']], NULL, "A{$currentRow}");
+        $sheet->setCellValueExplicit("D{$currentRow}", $row['harga_per_kg'], $DataType::TYPE_NUMERIC)->getStyle("D{$currentRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $counter++;
+        $currentRow++;
+    }
+    if ($currentRow > $startRowData) {
+        $sheet->getStyle("A{$startRowData}:F" . ($currentRow - 1))->applyFromArray($allBorders);
+    }
+    mysqli_free_result($result);
+    mysqli_stmt_close($stmt);
+
+    foreach (range('A', 'F') as $col) { $sheet->getColumnDimension($col)->setAutoSize(true); }
+}
+
+function buildLaporanBulananSheet($sheet, $koneksi, $bulan_tahun_input, $Alignment, $Border, $Fill, $DataType) {
+    $headerStyle = ['font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER, 'vertical' => $Alignment::VERTICAL_CENTER], 'fill' => ['fillType' => $Fill::FILL_SOLID, 'startColor' => ['rgb' => '0EA5E9']]];
+    $titleStyle = ['font' => ['bold' => true, 'size' => 14], 'alignment' => ['horizontal' => $Alignment::HORIZONTAL_CENTER]];
+    $subTitleStyle = ['font' => ['bold' => true, 'size' => 11]];
+    $allBorders = ['borders' => ['allBorders' => ['borderStyle' => $Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]];
+
+    [$tahun, $bulan] = explode('-', $bulan_tahun_input);
+    $currentRow = 1;
+    $sheet->mergeCells("A{$currentRow}:E{$currentRow}")->setCellValue("A{$currentRow}", "LAPORAN BULANAN BANK SAMPAH");
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($titleStyle);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:E{$currentRow}")->setCellValue("A{$currentRow}", "Periode: " . format_tanggal_indonesia($bulan_tahun_input . '-01', false));
+    $sheet->getStyle("A{$currentRow}")->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+    $currentRow++;
+    $sheet->mergeCells("A{$currentRow}:E{$currentRow}")->setCellValue("A{$currentRow}", "Diekspor: " . format_tanggal_indonesia(date('Y-m-d')));
+    $sheet->getStyle("A{$currentRow}")->applyFromArray($subTitleStyle);
+    $currentRow += 2;
+
+    $header = ['Tanggal', 'Jumlah Setoran', 'Total Setoran (Rp)', 'Total Penarikan (Rp)', 'Selisih Harian (Rp)'];
+    $sheet->fromArray($header, NULL, "A{$currentRow}")->getStyle("A{$currentRow}:E{$currentRow}")->applyFromArray($headerStyle);
+    $currentRow++;
+
+    $query_setoran_bulanan = "SELECT DATE(t.tanggal_transaksi) as tanggal, COUNT(CASE WHEN t.tipe_transaksi = 'setor' THEN t.id_transaksi END) as jumlah_setoran, SUM(CASE WHEN t.tipe_transaksi = 'setor' THEN t.total_nilai ELSE 0 END) as total_nilai_setoran, SUM(CASE WHEN t.tipe_transaksi = 'tarik_saldo' THEN t.total_nilai ELSE 0 END) as total_nilai_penarikan FROM transaksi t WHERE YEAR(t.tanggal_transaksi) = ? AND MONTH(t.tanggal_transaksi) = ? GROUP BY DATE(t.tanggal_transaksi) ORDER BY tanggal ASC";
+    $stmt_bulanan = mysqli_prepare($koneksi, $query_setoran_bulanan);
+    if (!$stmt_bulanan) {
+        throw new Exception("Gagal menyiapkan query laporan bulanan: " . mysqli_error($koneksi));
+    }
+    mysqli_stmt_bind_param($stmt_bulanan, "ss", $tahun, $bulan);
+    mysqli_stmt_execute($stmt_bulanan);
+    $result_bulanan = mysqli_stmt_get_result($stmt_bulanan);
+
+    $grand_total_setoran = 0;
+    $grand_total_penarikan = 0;
+    $startRowData = $currentRow;
+    while ($row = mysqli_fetch_assoc($result_bulanan)) {
+        $row['total_nilai_setoran'] = $row['total_nilai_setoran'] ?: 0;
+        $row['total_nilai_penarikan'] = $row['total_nilai_penarikan'] ?: 0;
+        $selisih = $row['total_nilai_setoran'] - $row['total_nilai_penarikan'];
+        $sheet->fromArray([
+            format_tanggal_indonesia($row['tanggal'], false),
+            $row['jumlah_setoran'],
+            null,
+            null,
+            null
+        ], NULL, "A{$currentRow}");
+        $sheet->setCellValueExplicit("C{$currentRow}", $row['total_nilai_setoran'], $DataType::TYPE_NUMERIC)->getStyle("C{$currentRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->setCellValueExplicit("D{$currentRow}", $row['total_nilai_penarikan'], $DataType::TYPE_NUMERIC)->getStyle("D{$currentRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->setCellValueExplicit("E{$currentRow}", $selisih, $DataType::TYPE_NUMERIC)->getStyle("E{$currentRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $grand_total_setoran += $row['total_nilai_setoran'];
+        $grand_total_penarikan += $row['total_nilai_penarikan'];
+        $currentRow++;
+    }
+
+    if ($currentRow > $startRowData) {
+        $sheet->getStyle("A{$startRowData}:E" . ($currentRow - 1))->applyFromArray($allBorders);
+    }
+    mysqli_stmt_close($stmt_bulanan);
+
+    $sheet->mergeCells("A{$currentRow}:B{$currentRow}")->setCellValue("A{$currentRow}", "Ringkasan Bulanan")->getStyle("A{$currentRow}")->applyFromArray($subTitleStyle);
+    $currentRow += 2;
+    $summaryHeader = ['Deskripsi', 'Jumlah (Rp)'];
+    $sheet->fromArray($summaryHeader, NULL, "A{$currentRow}")->getStyle("A{$currentRow}:B{$currentRow}")->applyFromArray($headerStyle);
+    $currentRow++;
+    $summaryData = [
+        ['Total Pemasukan', $grand_total_setoran],
+        ['Total Pengeluaran', $grand_total_penarikan],
+        ['Selisih Bersih', $grand_total_setoran - $grand_total_penarikan],
+    ];
+    $sheet->fromArray($summaryData, NULL, "A{$currentRow}");
+    $sheet->getStyle("B{$currentRow}:B" . ($currentRow + 2))->getNumberFormat()->setFormatCode('#,##0');
+    $sheet->getStyle("A{$currentRow}:B" . ($currentRow + 2))->applyFromArray($allBorders);
+
+    foreach (range('A', 'E') as $col) { $sheet->getColumnDimension($col)->setAutoSize(true); }
 }
 ?>
